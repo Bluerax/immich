@@ -8,6 +8,8 @@
     notificationController,
     NotificationType,
   } from '$lib/components/shared-components/notification/notification';
+  import SettingInputField, { SettingInputFieldType } from '../setting-input-field.svelte';
+  import SettingSwitch from '../setting-switch.svelte';
 
   export let thumbnailConfig: SystemConfigThumbnailDto; // this is the config that is being edited
 
@@ -80,8 +82,7 @@
         <div class="ml-4 mt-4 flex flex-col gap-4">
           <SettingSelect
             label="WEBP RESOLUTION"
-            desc="Higher resolutions can preserve more detail but take longer to encode, have larger file sizes, and can reduce app responsiveness."
-            number
+            desc="Small thumbnails used in the gallery view. Higher resolutions can preserve more detail but take longer to encode, have larger file sizes, and can reduce app responsiveness."
             bind:value={thumbnailConfig.webpSize}
             options={[
               { value: 1080, text: '1080p' },
@@ -95,8 +96,7 @@
 
           <SettingSelect
             label="JPEG RESOLUTION"
-            desc="Higher resolutions can preserve more detail but take longer to encode, have larger file sizes, and can reduce app responsiveness."
-            number
+            desc="Large images used in the image viewer. Higher resolutions can preserve more detail but take longer to encode, have larger file sizes, and can reduce app responsiveness."
             bind:value={thumbnailConfig.jpegSize}
             options={[
               { value: 2160, text: '4K' },
@@ -104,6 +104,21 @@
             ]}
             name="resolution"
             isEdited={!(thumbnailConfig.jpegSize === savedConfig.jpegSize)}
+          />
+
+          <SettingInputField
+            inputType={SettingInputFieldType.NUMBER}
+            label="QUALITY"
+            desc="Thumbnail quality from 1-100. Higher is better for quality but produces larger files."
+            bind:value={thumbnailConfig.quality}
+            isEdited={!(thumbnailConfig.quality === savedConfig.quality)}
+          />
+
+          <SettingSwitch
+            title="PREFER WIDE GAMUT"
+            subtitle="Use the Display P3 colorspace for thumbnails. This better preserves the vibrance of images with wide colorspaces, but images may appear differently on old devices with an old browser version. sRGB images are kept as sRGB to avoid color shifts."
+            bind:checked={thumbnailConfig.wideGamut}
+            isEdited={!(thumbnailConfig.wideGamut === savedConfig.wideGamut)}
           />
         </div>
 
