@@ -2,13 +2,14 @@ import { ToneMapping, TranscodeHWAccel, VideoCodec } from '@app/infra/entities';
 import { SystemConfigFFmpegDto } from '../system-config/dto';
 import {
   BitrateDistribution,
+  ThumbnailOptions,
   TranscodeOptions,
   VideoCodecHWConfig,
   VideoCodecSWConfig,
   VideoStreamInfo,
 } from './media.repository';
 class BaseConfig implements VideoCodecSWConfig {
-  constructor(protected config: SystemConfigFFmpegDto) {}
+  constructor(protected config: SystemConfigFFmpegDto) { }
 
   getOptions(stream: VideoStreamInfo) {
     const options = {
@@ -50,7 +51,7 @@ class BaseConfig implements VideoCodecSWConfig {
     if (this.shouldToneMap(stream)) {
       options.push(...this.getToneMapping());
     }
-    options.push('format=yuv420p');
+    options.push(this.getFormat());
 
     return options;
   }
@@ -159,6 +160,10 @@ class BaseConfig implements VideoCodecSWConfig {
     };
   }
 
+  getFormat() {
+    return 'yuv420p';
+  }
+
   getToneMapping() {
     const colors = this.getColors();
     // npl stands for nominal peak luminance
@@ -202,6 +207,10 @@ export class BaseHWConfig extends BaseConfig implements VideoCodecHWConfig {
 }
 
 export class ThumbnailConfig extends BaseConfig {
+  constructor(protected config: SystemConfigFFmpegDto, protected thumbnailOptions: ThumbnailOptions) { super(config) }
+  getBaseInputOptions(): string[] {
+    return ['-sws_flags accurate_rnd+bitexact+full_chroma_int']
+  }
   getBaseOutputOptions() {
     return ['-ss 00:00:00.000', '-frames:v 1'];
   }
@@ -211,24 +220,31 @@ export class ThumbnailConfig extends BaseConfig {
   }
 
   getBitrateOptions() {
-    return [];
+    return [`-q:v ${this.thumbnailOptions.quality}`];
   }
 
   getScaling(stream: VideoStreamInfo) {
     let options = super.getScaling(stream);
+    options += ':flags=lanczos+accurate_rnd+bitexact+full_chroma_int';
     if (!this.shouldToneMap(stream)) {
-      options += ':out_color_matrix=bt601:out_range=pc';
+      options += ':out_color_matrix=601:out_range=pc';
     }
     return options;
   }
 
   getColors() {
     return {
-      // jpeg and webp only support bt.601, so we need to convert to that directly when tone-mapping to avoid color shifts
-      primaries: 'bt470bg',
+      primaries: this.thumbnailOptions.wideGamut ? 'smpte432' : 'bt709',
       transfer: '601',
       matrix: 'bt470bg',
     };
+  }
+
+  getFormat() {
+    if (this.thumbnailOptions.quality >= 80) {
+      return 'yuv444p';
+    }
+    return 'yuv420p';
   }
 }
 

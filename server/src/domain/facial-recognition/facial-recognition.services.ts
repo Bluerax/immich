@@ -24,7 +24,7 @@ export class FacialRecognitionService {
     @Inject(IPersonRepository) private personRepository: IPersonRepository,
     @Inject(ISearchRepository) private searchRepository: ISearchRepository,
     @Inject(IStorageRepository) private storageRepository: IStorageRepository,
-  ) {}
+  ) { }
 
   async handleQueueRecognizeFaces({ force }: IBaseJob) {
     const assetPagination = usePagination(JOBS_ASSET_PAGINATION_SIZE, (pagination) => {
@@ -140,7 +140,8 @@ export class FacialRecognitionService {
     };
 
     const croppedOutput = await this.mediaRepository.crop(asset.resizePath, cropOptions);
-    await this.mediaRepository.resize(croppedOutput, output, { size: FACE_THUMBNAIL_SIZE, format: 'jpeg' });
+    await this.mediaRepository.resize(croppedOutput, { size: FACE_THUMBNAIL_SIZE });
+    await this.mediaRepository.saveThumbnail(croppedOutput, output, { format: 'jpeg' });
     await this.personRepository.update({ id: personId, thumbnailPath: output });
 
     return true;
