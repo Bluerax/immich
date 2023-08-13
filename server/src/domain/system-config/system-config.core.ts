@@ -69,7 +69,7 @@ export const defaults = Object.freeze<SystemConfig>({
     webpSize: 250,
     jpegSize: 1440,
     quality: 80,
-    wideGamut: true
+    wideGamut: true,
   },
 });
 
@@ -82,7 +82,7 @@ export class SystemConfigCore {
 
   public config$ = singleton;
 
-  constructor(private repository: ISystemConfigRepository) { }
+  constructor(private repository: ISystemConfigRepository) {}
 
   public getDefaults(): SystemConfig {
     return defaults;

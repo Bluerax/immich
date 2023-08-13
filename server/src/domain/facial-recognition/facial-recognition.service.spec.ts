@@ -9,6 +9,7 @@ import {
   newPersonRepositoryMock,
   newSearchRepositoryMock,
   newStorageRepositoryMock,
+  newSystemConfigRepositoryMock,
   personStub,
 } from '@test';
 import { IAssetRepository, WithoutProperty } from '../asset';
@@ -18,6 +19,7 @@ import { IPersonRepository } from '../person';
 import { ISearchRepository } from '../search';
 import { IMachineLearningRepository } from '../smart-info';
 import { IStorageRepository } from '../storage';
+import { ISystemConfigRepository } from '../system-config/system-config.repository';
 import { IFaceRepository } from './face.repository';
 import { FacialRecognitionService } from './facial-recognition.services';
 
@@ -101,6 +103,7 @@ describe(FacialRecognitionService.name, () => {
   let personMock: jest.Mocked<IPersonRepository>;
   let searchMock: jest.Mocked<ISearchRepository>;
   let storageMock: jest.Mocked<IStorageRepository>;
+  let configMock: jest.Mocked<ISystemConfigRepository>;
 
   beforeEach(async () => {
     assetMock = newAssetRepositoryMock();
@@ -111,6 +114,7 @@ describe(FacialRecognitionService.name, () => {
     personMock = newPersonRepositoryMock();
     searchMock = newSearchRepositoryMock();
     storageMock = newStorageRepositoryMock();
+    configMock = newSystemConfigRepositoryMock();
 
     mediaMock.crop.mockResolvedValue(croppedFace);
 
@@ -123,6 +127,7 @@ describe(FacialRecognitionService.name, () => {
       personMock,
       searchMock,
       storageMock,
+      configMock,
     );
   });
 
@@ -277,6 +282,8 @@ describe(FacialRecognitionService.name, () => {
       expect(mediaMock.resize).toHaveBeenCalledWith(croppedFace, 'upload/thumbs/user-id/person-1.jpeg', {
         format: 'jpeg',
         size: 250,
+        quality: 80,
+        wideGamut: true,
       });
       expect(personMock.update).toHaveBeenCalledWith({
         id: 'person-1',
@@ -298,6 +305,8 @@ describe(FacialRecognitionService.name, () => {
       expect(mediaMock.resize).toHaveBeenCalledWith(croppedFace, 'upload/thumbs/user-id/person-1.jpeg', {
         format: 'jpeg',
         size: 250,
+        quality: 80,
+        wideGamut: true,
       });
     });
 
@@ -315,6 +324,8 @@ describe(FacialRecognitionService.name, () => {
       expect(mediaMock.resize).toHaveBeenCalledWith(croppedFace, 'upload/thumbs/user-id/person-1.jpeg', {
         format: 'jpeg',
         size: 250,
+        quality: 80,
+        wideGamut: true,
       });
     });
   });

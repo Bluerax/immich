@@ -9,9 +9,9 @@ import { IPersonRepository } from '../person/person.repository';
 import { ISearchRepository } from '../search/search.repository';
 import { IMachineLearningRepository } from '../smart-info';
 import { IStorageRepository, StorageCore, StorageFolder } from '../storage';
-import { AssetFaceId, IFaceRepository } from './face.repository';
 import { SystemConfigCore } from '../system-config/system-config.core';
 import { ISystemConfigRepository } from '../system-config/system-config.repository';
+import { AssetFaceId, IFaceRepository } from './face.repository';
 
 export class FacialRecognitionService {
   private logger = new Logger(FacialRecognitionService.name);
@@ -147,7 +147,13 @@ export class FacialRecognitionService {
 
     const { thumbnail } = await this.configCore.getConfig();
     const croppedOutput = await this.mediaRepository.crop(asset.resizePath, cropOptions);
-    await this.mediaRepository.resize(croppedOutput, output, { format: 'jpeg', size: FACE_THUMBNAIL_SIZE, ...thumbnail });
+    const thumbnailOptions = {
+      format: 'jpeg',
+      size: FACE_THUMBNAIL_SIZE,
+      wideGamut: thumbnail.wideGamut,
+      quality: thumbnail.quality,
+    } as const;
+    await this.mediaRepository.resize(croppedOutput, output, thumbnailOptions);
     await this.personRepository.update({ id: personId, thumbnailPath: output });
 
     return true;

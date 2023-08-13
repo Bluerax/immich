@@ -69,7 +69,7 @@ const updatedConfig = Object.freeze<SystemConfig>({
     webpSize: 250,
     jpegSize: 1440,
     quality: 80,
-    wideGamut: false
+    wideGamut: true,
   },
 });
 
